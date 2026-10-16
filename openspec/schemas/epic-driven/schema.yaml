@@ -1,0 +1,82 @@
+name: epic-driven
+version: 1
+description: Plan a multi-change initiative as a vision, staged roadmap, and dependency-aware story set
+
+artifacts:
+  - id: vision
+    generates: vision.md
+    description: Stable initiative intent, outcomes, scope, constraints, and success measures
+    template: vision.md
+    instruction: |
+      Create the durable vision for this initiative.
+
+      Capture the problem, users or consumers, measurable outcomes, scope,
+      non-goals, constraints, assumptions, and initiative-level success measures.
+      Describe outcomes rather than implementation details. Include technical
+      constraints only when they shape the roadmap.
+
+      Resolve ambiguity that would materially change scope or success criteria
+      with the user. Record smaller assumptions explicitly.
+
+      Keep this stable after delivery starts. Later learning may clarify the
+      vision, but must not silently rewrite achieved outcomes or history.
+    requires: []
+
+  - id: roadmap
+    generates: roadmap.md
+    description: Incremental delivery stages with demonstrable outcomes and exit criteria
+    template: roadmap.md
+    instruction: |
+      Turn vision.md into an incremental delivery roadmap.
+
+      Each stage must produce a demonstrable, testable outcome rather than an
+      architectural layer. Define the goal, included outcomes, dependencies,
+      exit criteria, and what the stage unlocks. Prefer the smallest useful
+      vertical slice first. Separate discovery spikes when uncertainty would
+      otherwise make a delivery story unsafe to estimate or specify.
+
+      Do not create implementation tasks here. Story-sized changes are defined
+      in stories.md after the roadmap is accepted.
+
+      When revising an existing roadmap, completed stages are historical facts
+      and active stages are stable contracts. Change only future stages unless
+      the user explicitly accepts a migration or replacement plan.
+    requires:
+      - vision
+
+  - id: stories
+    generates: stories.md
+    description: Ordered, dependency-aware story candidates mapped to child OpenSpec change names
+    template: stories.md
+    instruction: |
+      Decompose roadmap.md into independently valuable, reviewable OpenSpec
+      story changes.
+
+      Every story must have a stable ID, unique kebab-case child change name
+      within its OpenSpec root, stage, priority, dependencies by story ID,
+      outcome, acceptance signals, likely capability impact, and
+      parallel-safety note.
+
+      When child changes live in a different registered OpenSpec store than
+      the epic, set **Store** to that store id. Omit **Store** when the child
+      uses the same root as the epic. Child uniqueness is
+      (store-or-epic-root, change name).
+
+      Include a Story Index with one markdown checkbox per story ID. Leave
+      boxes unchecked at creation. `/opsx-epic-sync` checks a box only when
+      that story's child change is archived. Do not check boxes by hand.
+
+      A story should be small enough to specify, implement, verify, and archive
+      independently. It must not contain design decisions or implementation
+      task lists; those belong to the child change's normal spec-driven
+      proposal, specs, design, and tasks.
+
+      Dependencies must form an acyclic graph. Depend only on genuine delivery
+      prerequisites, not preferred ordering. Within a stage, mark independent
+      stories as parallel-safe when they can be developed without overlapping
+      behavior contracts or likely implementation hotspots.
+
+      Derived status comes from OpenSpec child state in each story's root.
+      Index checkboxes are a projection of archived completion only.
+    requires:
+      - roadmap
